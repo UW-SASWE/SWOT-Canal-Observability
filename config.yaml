@@ -1,0 +1,128 @@
+# ============================================================
+# SOGRAIN 2.0 — Pipeline Configuration
+# ============================================================
+# Edit this file before running the pipeline.
+# Paths marked USER-SUPPLIED must be set by you.
+# ============================================================
+
+config_file: config.yaml
+
+# ----------------------------------------
+# USER-SUPPLIED: Directory Paths
+# ----------------------------------------
+
+# Path to the GRAIN GeoParquet directory (downloaded from Zenodo).
+# Expected file inside: {region_name}_GRAIN_v.1.0.parquet
+base_grain_dir: /path/to/GRAIN_v.1.0/GeoParquet
+
+# Root directory where all pipeline outputs will be written.
+# A subdirectory {region_name}_from_{canal_start}_to_{canal_end}/ will be created here.
+run_base_dir: /path/to/your/output/directory
+
+# ----------------------------------------
+# USER-SUPPLIED: Google Earth Engine & Cloud Storage
+# Used only in the DEM sampling step (dem_sample.py).
+# ----------------------------------------
+
+# Your GEE asset path containing GRAIN canal features.
+# Must match the format: projects/{your-project}/assets/GRAIN/{region_name}_GRAIN_canals
+base_gee_asset: projects/YOUR_GEE_PROJECT/assets/GRAIN
+
+# Google Cloud Storage bucket for intermediate DEM export files.
+gcs_bucket: your-gcs-bucket-name
+
+# Google Cloud project ID associated with the GCS bucket.
+gcp_project: your-gcp-project-id
+
+# ----------------------------------------
+# USER-SUPPLIED: Region and Canal Range
+# ----------------------------------------
+
+# Region name (must match the prefix of your GRAIN parquet file,
+# e.g. "iran" for iran_GRAIN_v.1.0.parquet).
+region_name: iran
+
+# Canal index range to process (0-based, end is exclusive).
+# Use canal_start=0 and canal_end equal to the total number of canals
+# in the region to process everything, or a subset for testing.
+canal_start: 0
+canal_end: 100
+
+# ----------------------------------------
+# PIXC Planning & Download
+# ----------------------------------------
+
+# SWOT PIXC product short name used to search NASA EarthData.
+# Version 2.0 (C) was used in the original study.
+# Check https://search.earthdata.nasa.gov for the latest available version
+# and update this value accordingly (e.g. PIXC Level 2 Version D: SWOT_L2_HR_PIXC_D).
+pixc_short_name: SWOT_L2_HR_PIXC_2.0
+
+start_date: "2024-01-01"
+end_date: "2024-12-31"
+
+planning_dir: pixc_planning
+download_dir: pixc_downloads
+
+# ----------------------------------------
+# Extraction
+# ----------------------------------------
+
+extracted_points_dir: extracted_points
+
+# Buffer around each canal centerline (meters) to capture nearby PIXC pixels.
+buffer_m: 200
+
+# Number of canals processed per extraction chunk (parallelised by Snakemake).
+# Larger values use more memory per chunk; smaller values increase parallelism.
+chunk_size: 300
+
+# Number of parallel worker processes for the WSE metrics step.
+compute_cores: 4
+
+# ----------------------------------------
+# WSE Computation
+# ----------------------------------------
+
+metrics_dir: metrics
+
+# Width of along-canal bins for median WSE computation (meters).
+bin_width_m: 50
+
+# Minimum number of occupied bins required to fit a slope.
+min_bins_required: 5
+
+# PIXC classification values to include.
+# Default: [4] = open water only (recommended).
+# You can also include [3, 4] to add partial surface water,
+# but this typically increases noise.
+classification: [4]
+
+# Optional cross-track distance filter.
+# Set use_cross_track_filter to true to restrict pixels to a
+# near-nadir swath range, which can reduce layover artefacts.
+use_cross_track_filter: false
+cross_track_min_m: 10000
+cross_track_max_m: 60000
+
+# ----------------------------------------
+# DEM Sampling
+# ----------------------------------------
+
+# Spacing between sample points along each canal centerline (meters).
+dem_spacing_m: 50
+
+# Native resolution of the DEM to use for sampling (meters).
+# Copernicus GLO-30 has 30 m native resolution.
+dem_scale_m: 30
+
+# Number of canals per GEE export batch.
+# Reduce if you hit GEE memory limits.
+dem_batch_size: 1000
+
+# ----------------------------------------
+# Slope Sign Logic
+# ----------------------------------------
+
+# Slopes below this absolute value (m/m) are treated as flat / ambiguous.
+slope_sign_tolerance: 1e-6

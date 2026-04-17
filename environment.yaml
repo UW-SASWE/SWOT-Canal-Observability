@@ -1,0 +1,24 @@
+name: swot-grain
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.10
+  - numpy
+  - pandas
+  - scipy
+  - geopandas
+  - pyarrow
+  - shapely
+  - pyproj
+  - pyyaml
+  - netCDF4
+  - requests
+  - matplotlib
+  - jupyter
+  - pip
+  - pip:
+    - snakemake
+    - earthaccess
+    - earthengine-api
+    - google-cloud-storage

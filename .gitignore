@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Pipeline outputs (large data — never commit these)
+pixc_downloads/
+pixc_planning/
+extracted_points/
+metrics/
+run_metadata/
+dem_batches/
+*.nc
+*.parquet
+*.csv
+
+# Snakemake internals
+.snakemake/
+
+# OS
+.DS_Store
