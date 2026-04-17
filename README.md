@@ -387,4 +387,5 @@ please cite the GRAIN dataset:
 
 ## License
 
-MIT License. See `LICENSE` for details.
+This project is licensed under the **GNU General Public License v3.0**.
+See `LICENSE` for details, or visit https://www.gnu.org/licenses/gpl-3.0.html.
