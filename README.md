@@ -378,10 +378,21 @@ processes that many canals in parallel in a single process.
 
 ## Citation
 
-If you use this pipeline or the resulting confidence levels in published work,
-please cite the GRAIN dataset:
+If you use this pipeline, associated datasets, or derived confidence levels in published work, please cite the following:
 
-> [GRAIN v1.0 — Global River and Irrigation Network (Zenodo)](https://doi.org/10.5281/zenodo.16786487)
+### 1. GRAIN canal dataset
+> Global River and Irrigation Network (GRAIN v1.0).  
+> https://doi.org/10.5281/zenodo.16786487
+
+### 2. Processed observability dataset (this study)
+> Sharma, M. (2026).  
+> *SWOT-Derived Canal Observability Confidence Levels for Asian Green Revolution Irrigation Networks* [Data set]. Zenodo.  
+> https://doi.org/10.5281/zenodo.19931497
+
+### 3. This pipeline (code)
+> Sharma, M. (2026).  
+> *SWOT Canal Observability Pipeline (Version 1.0)* [Software]. Zenodo.  
+> https://doi.org/10.5281/zenodo.20043354
 
 ---
 
