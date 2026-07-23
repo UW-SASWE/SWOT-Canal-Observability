@@ -399,13 +399,13 @@ If you use this pipeline, associated datasets, or derived confidence levels in p
 
 ### 3. Processed observability dataset (this study)
 > Sharma, M. (2026).  
-> *SWOT-Derived Canal Observability Confidence Levels for 22 Asian Countries* (Version v1.2) [Data set]. Zenodo.  
+> *SWOT-Derived Canal Observability Confidence Levels for 22 Asian Countries* (Version v1.1) [Data set]. Zenodo.  
 > https://doi.org/10.5281/zenodo.21498956
 
 ### 4. This pipeline (code)
 > Sharma, M. (2026).  
-> *SWOT Canal Observability Pipeline (Version 1.0)* [Software]. Zenodo.  
-> https://doi.org/10.5281/zenodo.20043354
+> *SWOT Canal Observability Pipeline* (Version v1.1) [Software]. Zenodo.  
+> https://doi.org/10.5281/zenodo.21501179
 
 ---
 
