@@ -5,7 +5,7 @@ water surface elevation (WSE) slopes and observability confidence levels for
 irrigation canal segments in the GRAIN dataset.
 
 **What it produces:** For each canal segment in a region, the pipeline outputs
-a *confidence level* (CL_A ∈ [0, 1]) that quantifies how reliably the SWOT
+a *confidence level* (CL ∈ [0, 1]) that quantifies how reliably the SWOT
 satellite can observe water surface elevation over that canal.
 
 ---
@@ -49,8 +49,8 @@ satellite can observe water surface elevation over that canal.
 ### 2.1 Clone this repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/SOGRAIN2.0-pipeline.git
-cd SOGRAIN2.0-pipeline
+git clone https://github.com/mridul0rks/SWOT-Canal-Observability.git
+cd SWOT-Canal-Observability
 ```
 
 ### 2.2 Create the conda environment
@@ -270,7 +270,7 @@ snakemake --cores 4 --config canal_start=0 canal_end=50
 
 ## 8. Compute confidence levels (notebook)
 
-After the pipeline finishes, open the Jupyter notebook to compute CL_A:
+After the pipeline finishes, open the Jupyter notebook to compute CL:
 
 ```bash
 jupyter notebook notebooks/compute_confidence_CL_A.ipynb
@@ -280,22 +280,29 @@ jupyter notebook notebooks/compute_confidence_CL_A.ipynb
    `wse_dem_slope_comparison.csv` produced by the pipeline.
 2. Run all cells (Kernel → Restart & Run All).
 3. The notebook will:
-   - Compute individual metric scores (SNR, residual noise, coverage, contiguity, slope direction, slope magnitude agreement).
+   - Compute individual metric scores (SNR, residual noise, coverage, contiguity, slope magnitude agreement, and a continuous slope-direction confidence via isotonic regression — see Cell 2/4).
    - Combine them into three components: physical realism (`s_physical_realism`), statistical robustness (`s_statistical_robustness`), and spatial coherence (`s_spatial_coherence`).
-   - Compute CL_A using the geometric-mean + minimum-dimension penalty formula.
+   - Compute CL using the geometric-mean + minimum-dimension penalty formula.
    - Show quantile plots and class distribution charts.
-   - Save `confidence_levels_CL_A.csv` alongside the input file.
+   - Save `confidence_levels_CL.csv` alongside the input file.
 
-### Understanding CL_A
+### Understanding CL
 
-| CL_A range | Class | Interpretation |
+| CL range | Class | Interpretation |
 |-----------|-------|---------------|
-| 0.00 – 0.20 | Low | SWOT rarely produces usable observations for this canal |
-| 0.20 – 0.66 | Moderate | Observations available but with caveats |
-| 0.66 – 1.00 | High | SWOT reliably observes this canal |
+| 0.000 – 0.108 | Low | SWOT rarely produces usable observations for this canal |
+| 0.108 – 0.597 | Moderate | Observations available but with caveats |
+| 0.597 – 1.000 | High | SWOT reliably observes this canal |
+
+Thresholds are derived from a Gaussian kernel density estimate of the CL
+distribution (density valleys nearest the low and high ends), stable within
+±2 percentage points across kernel bandwidths 0.10–0.20.
 
 Canals without a DEM slope (e.g. very short segments that GEE could not sample)
-will have `CL_A = NaN` in the output.
+will have `CL = NaN` in the output; the `class` column assigns these `Moderate`
+by convention (a placeholder, not a real classification) rather than leaving
+them unlabelled — filter on `CL`.notna() first if you need only canals with a
+genuine confidence assessment.
 
 ---
 
@@ -327,23 +334,24 @@ All columns from `wse_metrics.csv` plus:
 | `slope_sign_match` | True if WSE and DEM slopes have the same sign |
 | `slope_sign_category` | "match" or "mismatch" |
 
-### `confidence_levels_CL_A.csv` (from notebook)
+### `confidence_levels_CL.csv` (from notebook)
 
 All of the above plus:
 
 | Column | Description |
 |--------|-------------|
 | `slope_magnitude_diff_m_per_m` | Absolute difference between WSE and DEM slope magnitudes |
-| `score_slope_direction` | Direction-agreement score (0–1) |
+| `score_slope_direction` | Continuous direction-agreement confidence (0–1) from isotonic regression of sign-disagreement rate vs. slope magnitude; 0.5 = no information either way, not "ambiguous/near-flat" |
 | `score_slope_magnitude` | Slope-magnitude-consistency score (0–1) |
 | `score_snr` | SNR score (0–1) |
 | `score_dispersion` | Noise/dispersion score (0–1, higher = lower noise) |
 | `score_coverage` | Spatial coverage score (0–1) |
 | `score_contiguity` | Spatial contiguity score (0–1) |
-| `s_physical_realism` | Physical realism component score (0–1) |
-| `s_statistical_robustness` | Statistical robustness component score (0–1) |
-| `s_spatial_coherence` | Spatial coherence component score (0–1) |
-| `CL_A` | Final observability confidence level (0–1) |
+| `s_physical_realism` | Physical realism component score (0–1): `score_slope_direction^0.7 · score_slope_magnitude^0.3` |
+| `s_statistical_robustness` | Statistical robustness component score (0–1): `sqrt(score_snr · score_dispersion)` |
+| `s_spatial_coherence` | Spatial coherence component score (0–1): `score_coverage^0.7 · score_contiguity^0.3` |
+| `CL` | Final observability confidence level (0–1) |
+| `class` | `Low` / `Moderate` / `High`, from the thresholds in Section 8. `Moderate` for DEM-missing (`CL` = NaN) rows by convention |
 
 ---
 
@@ -380,16 +388,21 @@ processes that many canals in parallel in a single process.
 
 If you use this pipeline, associated datasets, or derived confidence levels in published work, please cite the following:
 
-### 1. GRAIN canal dataset
-> Global River and Irrigation Network (GRAIN v1.0).  
+### 1. The associated publication
+> Sharma, M., Hossain, F., Suresh, S., Pavelsky, T. M., Minocha, S., & Khan, S. (in review).
+> *How Well Can the Surface Water and Ocean Topography (SWOT) Satellite Mission Observe Irrigation Canals?*
+> Geophysical Research Letters.
+
+### 2. GRAIN canal dataset
+> Global Registry of Agricultural Irrigation Network (GRAIN v1.0).  
 > https://doi.org/10.5281/zenodo.16786487
 
-### 2. Processed observability dataset (this study)
+### 3. Processed observability dataset (this study)
 > Sharma, M. (2026).  
-> *SWOT-Derived Canal Observability Confidence Levels for Asian Green Revolution Irrigation Networks* [Data set]. Zenodo.  
-> https://doi.org/10.5281/zenodo.19931497
+> *SWOT-Derived Canal Observability Confidence Levels for 22 Asian Countries* (Version v1.2) [Data set]. Zenodo.  
+> https://doi.org/10.5281/zenodo.21498956
 
-### 3. This pipeline (code)
+### 4. This pipeline (code)
 > Sharma, M. (2026).  
 > *SWOT Canal Observability Pipeline (Version 1.0)* [Software]. Zenodo.  
 > https://doi.org/10.5281/zenodo.20043354
